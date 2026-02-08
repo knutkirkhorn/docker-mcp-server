@@ -1,18 +1,18 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
-import { z } from "zod";
+import {McpServer} from '@modelcontextprotocol/sdk/server/mcp.js';
+import {StdioServerTransport} from '@modelcontextprotocol/sdk/server/stdio.js';
+import {z} from 'zod';
 
 const server = new McpServer({
-	name: "docker-mcp-server",
-	version: "1.0.0",
-	description: "MCP server for Docker container management",
+	name: 'docker-mcp-server',
+	version: '1.0.0',
+	description: 'MCP server for Docker container management',
 });
 
 // Helper function to run docker commands
 async function runDockerCommand(args: string[]): Promise<string> {
-	const proc = Bun.spawn(["docker", ...args], {
-		stdout: "pipe",
-		stderr: "pipe",
+	const proc = Bun.spawn(['docker', ...args], {
+		stdout: 'pipe',
+		stderr: 'pipe',
 	});
 
 	const stdout = await new Response(proc.stdout).text();
@@ -34,82 +34,82 @@ async function runDockerCommand(args: string[]): Promise<string> {
 
 // List all containers
 server.registerTool(
-	"list_containers",
+	'list_containers',
 	{
 		inputSchema: {
 			all: z
 				.boolean()
 				.optional()
-				.describe("Show all containers (default shows just running)"),
+				.describe('Show all containers (default shows just running)'),
 			format: z
-				.enum(["table", "json"])
+				.enum(['table', 'json'])
 				.optional()
-				.describe("Output format (default: json)"),
+				.describe('Output format (default: json)'),
 		},
 	},
-	async ({ all, format }) => {
-		const args = ["ps"];
-		if (all) args.push("-a");
+	async ({all, format}) => {
+		const args = ['ps'];
+		if (all) args.push('-a');
 		args.push(
-			"--format",
-			format === "table"
-				? "table {{.ID}}\t{{.Names}}\t{{.Image}}\t{{.Status}}\t{{.Ports}}"
-				: "json",
+			'--format',
+			format === 'table'
+				? 'table {{.ID}}\t{{.Names}}\t{{.Image}}\t{{.Status}}\t{{.Ports}}'
+				: 'json',
 		);
 
 		const output = await runDockerCommand(args);
 		return {
-			content: [{ type: "text", text: output || "No containers found" }],
+			content: [{type: 'text', text: output || 'No containers found'}],
 		};
 	},
 );
 
 // Get container logs
 server.registerTool(
-	"get_container_logs",
+	'get_container_logs',
 	{
 		inputSchema: {
-			container: z.string().describe("Container ID or name"),
+			container: z.string().describe('Container ID or name'),
 			tail: z
 				.number()
 				.optional()
-				.describe("Number of lines to show from the end of the logs"),
+				.describe('Number of lines to show from the end of the logs'),
 			since: z
 				.string()
 				.optional()
 				.describe(
 					"Show logs since timestamp (e.g., '2024-01-01T00:00:00' or '10m')",
 				),
-			timestamps: z.boolean().optional().describe("Show timestamps"),
+			timestamps: z.boolean().optional().describe('Show timestamps'),
 		},
 	},
-	async ({ container, tail, since, timestamps }) => {
-		const args = ["logs"];
-		if (tail) args.push("--tail", tail.toString());
-		if (since) args.push("--since", since);
-		if (timestamps) args.push("--timestamps");
+	async ({container, tail, since, timestamps}) => {
+		const args = ['logs'];
+		if (tail) args.push('--tail', tail.toString());
+		if (since) args.push('--since', since);
+		if (timestamps) args.push('--timestamps');
 		args.push(container);
 
 		const output = await runDockerCommand(args);
 		return {
-			content: [{ type: "text", text: output || "No logs available" }],
+			content: [{type: 'text', text: output || 'No logs available'}],
 		};
 	},
 );
 
 // Start a container
 server.registerTool(
-	"start_container",
+	'start_container',
 	{
 		inputSchema: {
-			container: z.string().describe("Container ID or name"),
+			container: z.string().describe('Container ID or name'),
 		},
 	},
-	async ({ container }) => {
-		await runDockerCommand(["start", container]);
+	async ({container}) => {
+		await runDockerCommand(['start', container]);
 		return {
 			content: [
-				{ type: "text", text: `Container '${container}' started successfully` },
+				{type: 'text', text: `Container '${container}' started successfully`},
 			],
 		};
 	},
@@ -117,25 +117,25 @@ server.registerTool(
 
 // Stop a container
 server.registerTool(
-	"stop_container",
+	'stop_container',
 	{
 		inputSchema: {
-			container: z.string().describe("Container ID or name"),
+			container: z.string().describe('Container ID or name'),
 			time: z
 				.number()
 				.optional()
-				.describe("Seconds to wait before killing the container"),
+				.describe('Seconds to wait before killing the container'),
 		},
 	},
-	async ({ container, time }) => {
-		const args = ["stop"];
-		if (time !== undefined) args.push("-t", time.toString());
+	async ({container, time}) => {
+		const args = ['stop'];
+		if (time !== undefined) args.push('-t', time.toString());
 		args.push(container);
 
 		await runDockerCommand(args);
 		return {
 			content: [
-				{ type: "text", text: `Container '${container}' stopped successfully` },
+				{type: 'text', text: `Container '${container}' stopped successfully`},
 			],
 		};
 	},
@@ -143,26 +143,26 @@ server.registerTool(
 
 // Restart a container
 server.registerTool(
-	"restart_container",
+	'restart_container',
 	{
 		inputSchema: {
-			container: z.string().describe("Container ID or name"),
+			container: z.string().describe('Container ID or name'),
 			time: z
 				.number()
 				.optional()
-				.describe("Seconds to wait before killing the container"),
+				.describe('Seconds to wait before killing the container'),
 		},
 	},
-	async ({ container, time }) => {
-		const args = ["restart"];
-		if (time !== undefined) args.push("-t", time.toString());
+	async ({container, time}) => {
+		const args = ['restart'];
+		if (time !== undefined) args.push('-t', time.toString());
 		args.push(container);
 
 		await runDockerCommand(args);
 		return {
 			content: [
 				{
-					type: "text",
+					type: 'text',
 					text: `Container '${container}' restarted successfully`,
 				},
 			],
@@ -172,30 +172,30 @@ server.registerTool(
 
 // Remove a container
 server.registerTool(
-	"remove_container",
+	'remove_container',
 	{
 		inputSchema: {
-			container: z.string().describe("Container ID or name"),
+			container: z.string().describe('Container ID or name'),
 			force: z
 				.boolean()
 				.optional()
-				.describe("Force removal of a running container"),
+				.describe('Force removal of a running container'),
 			volumes: z
 				.boolean()
 				.optional()
-				.describe("Remove anonymous volumes associated with the container"),
+				.describe('Remove anonymous volumes associated with the container'),
 		},
 	},
-	async ({ container, force, volumes }) => {
-		const args = ["rm"];
-		if (force) args.push("-f");
-		if (volumes) args.push("-v");
+	async ({container, force, volumes}) => {
+		const args = ['rm'];
+		if (force) args.push('-f');
+		if (volumes) args.push('-v');
 		args.push(container);
 
 		await runDockerCommand(args);
 		return {
 			content: [
-				{ type: "text", text: `Container '${container}' removed successfully` },
+				{type: 'text', text: `Container '${container}' removed successfully`},
 			],
 		};
 	},
@@ -203,46 +203,46 @@ server.registerTool(
 
 // Inspect a container
 server.registerTool(
-	"inspect_container",
+	'inspect_container',
 	{
 		inputSchema: {
-			container: z.string().describe("Container ID or name"),
+			container: z.string().describe('Container ID or name'),
 		},
 	},
-	async ({ container }) => {
-		const output = await runDockerCommand(["inspect", container]);
+	async ({container}) => {
+		const output = await runDockerCommand(['inspect', container]);
 		return {
-			content: [{ type: "text", text: output }],
+			content: [{type: 'text', text: output}],
 		};
 	},
 );
 
 // Execute command in container
 server.registerTool(
-	"exec_in_container",
+	'exec_in_container',
 	{
 		inputSchema: {
-			container: z.string().describe("Container ID or name"),
-			command: z.string().describe("Command to execute"),
+			container: z.string().describe('Container ID or name'),
+			command: z.string().describe('Command to execute'),
 			workdir: z
 				.string()
 				.optional()
-				.describe("Working directory inside the container"),
-			user: z.string().optional().describe("Username or UID"),
+				.describe('Working directory inside the container'),
+			user: z.string().optional().describe('Username or UID'),
 		},
 	},
-	async ({ container, command, workdir, user }) => {
-		const args = ["exec"];
-		if (workdir) args.push("-w", workdir);
-		if (user) args.push("-u", user);
-		args.push(container, "sh", "-c", command);
+	async ({container, command, workdir, user}) => {
+		const args = ['exec'];
+		if (workdir) args.push('-w', workdir);
+		if (user) args.push('-u', user);
+		args.push(container, 'sh', '-c', command);
 
 		const output = await runDockerCommand(args);
 		return {
 			content: [
 				{
-					type: "text",
-					text: output || "Command executed successfully (no output)",
+					type: 'text',
+					text: output || 'Command executed successfully (no output)',
 				},
 			],
 		};
@@ -255,29 +255,29 @@ server.registerTool(
 
 // List images
 server.registerTool(
-	"list_images",
+	'list_images',
 	{
 		inputSchema: {
 			all: z
 				.boolean()
 				.optional()
-				.describe("Show all images (default hides intermediate images)"),
+				.describe('Show all images (default hides intermediate images)'),
 		},
 	},
-	async ({ all }) => {
-		const args = ["images", "--format", "json"];
-		if (all) args.push("-a");
+	async ({all}) => {
+		const args = ['images', '--format', 'json'];
+		if (all) args.push('-a');
 
 		const output = await runDockerCommand(args);
 		return {
-			content: [{ type: "text", text: output || "No images found" }],
+			content: [{type: 'text', text: output || 'No images found'}],
 		};
 	},
 );
 
 // Pull an image
 server.registerTool(
-	"pull_image",
+	'pull_image',
 	{
 		inputSchema: {
 			image: z
@@ -285,33 +285,31 @@ server.registerTool(
 				.describe("Image name (e.g., 'nginx:latest', 'ubuntu:22.04')"),
 		},
 	},
-	async ({ image }) => {
-		const output = await runDockerCommand(["pull", image]);
+	async ({image}) => {
+		const output = await runDockerCommand(['pull', image]);
 		return {
-			content: [{ type: "text", text: output }],
+			content: [{type: 'text', text: output}],
 		};
 	},
 );
 
 // Remove an image
 server.registerTool(
-	"remove_image",
+	'remove_image',
 	{
 		inputSchema: {
-			image: z.string().describe("Image ID or name"),
-			force: z.boolean().optional().describe("Force removal of the image"),
+			image: z.string().describe('Image ID or name'),
+			force: z.boolean().optional().describe('Force removal of the image'),
 		},
 	},
-	async ({ image, force }) => {
-		const args = ["rmi"];
-		if (force) args.push("-f");
+	async ({image, force}) => {
+		const args = ['rmi'];
+		if (force) args.push('-f');
 		args.push(image);
 
 		await runDockerCommand(args);
 		return {
-			content: [
-				{ type: "text", text: `Image '${image}' removed successfully` },
-			],
+			content: [{type: 'text', text: `Image '${image}' removed successfully`}],
 		};
 	},
 );
@@ -322,15 +320,15 @@ server.registerTool(
 
 // Run a new container
 server.registerTool(
-	"run_container",
+	'run_container',
 	{
 		inputSchema: {
-			image: z.string().describe("Image to run"),
-			name: z.string().optional().describe("Assign a name to the container"),
+			image: z.string().describe('Image to run'),
+			name: z.string().optional().describe('Assign a name to the container'),
 			detach: z
 				.boolean()
 				.optional()
-				.describe("Run container in background (default: true)"),
+				.describe('Run container in background (default: true)'),
 			ports: z
 				.array(z.string())
 				.optional()
@@ -343,15 +341,15 @@ server.registerTool(
 				.array(z.string())
 				.optional()
 				.describe("Bind mount volumes (e.g., ['/host/path:/container/path'])"),
-			network: z.string().optional().describe("Connect to a network"),
+			network: z.string().optional().describe('Connect to a network'),
 			command: z
 				.string()
 				.optional()
-				.describe("Command to run in the container"),
+				.describe('Command to run in the container'),
 			rm: z
 				.boolean()
 				.optional()
-				.describe("Automatically remove the container when it exits"),
+				.describe('Automatically remove the container when it exits'),
 		},
 	},
 	async ({
@@ -365,24 +363,24 @@ server.registerTool(
 		command,
 		rm,
 	}) => {
-		const args = ["run"];
+		const args = ['run'];
 
-		if (detach) args.push("-d");
-		if (name) args.push("--name", name);
-		if (rm) args.push("--rm");
-		if (network) args.push("--network", network);
+		if (detach) args.push('-d');
+		if (name) args.push('--name', name);
+		if (rm) args.push('--rm');
+		if (network) args.push('--network', network);
 
-		ports?.forEach((p) => args.push("-p", p));
-		env?.forEach((e) => args.push("-e", e));
-		volumes?.forEach((v) => args.push("-v", v));
+		ports?.forEach(p => args.push('-p', p));
+		env?.forEach(e => args.push('-e', e));
+		volumes?.forEach(v => args.push('-v', v));
 
 		args.push(image);
 
-		if (command) args.push(...command.split(" "));
+		if (command) args.push(...command.split(' '));
 
 		const output = await runDockerCommand(args);
 		return {
-			content: [{ type: "text", text: `Container started: ${output.trim()}` }],
+			content: [{type: 'text', text: `Container started: ${output.trim()}`}],
 		};
 	},
 );
@@ -392,54 +390,54 @@ server.registerTool(
 // ============================================
 
 // List volumes
-server.registerTool("list_volumes", {}, async () => {
-	const output = await runDockerCommand(["volume", "ls", "--format", "json"]);
+server.registerTool('list_volumes', {}, async () => {
+	const output = await runDockerCommand(['volume', 'ls', '--format', 'json']);
 	return {
-		content: [{ type: "text", text: output || "No volumes found" }],
+		content: [{type: 'text', text: output || 'No volumes found'}],
 	};
 });
 
 // List networks
-server.registerTool("list_networks", {}, async () => {
-	const output = await runDockerCommand(["network", "ls", "--format", "json"]);
+server.registerTool('list_networks', {}, async () => {
+	const output = await runDockerCommand(['network', 'ls', '--format', 'json']);
 	return {
-		content: [{ type: "text", text: output || "No networks found" }],
+		content: [{type: 'text', text: output || 'No networks found'}],
 	};
 });
 
 // Docker system info
-server.registerTool("system_info", {}, async () => {
-	const output = await runDockerCommand(["info", "--format", "json"]);
+server.registerTool('system_info', {}, async () => {
+	const output = await runDockerCommand(['info', '--format', 'json']);
 	return {
-		content: [{ type: "text", text: output }],
+		content: [{type: 'text', text: output}],
 	};
 });
 
 // Docker system prune
 server.registerTool(
-	"system_prune",
+	'system_prune',
 	{
 		inputSchema: {
 			all: z
 				.boolean()
 				.optional()
-				.describe("Remove all unused images, not just dangling ones"),
-			volumes: z.boolean().optional().describe("Prune volumes"),
+				.describe('Remove all unused images, not just dangling ones'),
+			volumes: z.boolean().optional().describe('Prune volumes'),
 			force: z
 				.boolean()
 				.optional()
-				.describe("Do not prompt for confirmation (default: true)"),
+				.describe('Do not prompt for confirmation (default: true)'),
 		},
 	},
-	async ({ all, volumes, force = true }) => {
-		const args = ["system", "prune"];
-		if (all) args.push("-a");
-		if (volumes) args.push("--volumes");
-		if (force) args.push("-f");
+	async ({all, volumes, force = true}) => {
+		const args = ['system', 'prune'];
+		if (all) args.push('-a');
+		if (volumes) args.push('--volumes');
+		if (force) args.push('-f');
 
 		const output = await runDockerCommand(args);
 		return {
-			content: [{ type: "text", text: output }],
+			content: [{type: 'text', text: output}],
 		};
 	},
 );
@@ -450,128 +448,128 @@ server.registerTool(
 
 // Docker Compose up
 server.registerTool(
-	"compose_up",
+	'compose_up',
 	{
 		inputSchema: {
 			file: z
 				.string()
 				.optional()
-				.describe("Path to compose file (default: docker-compose.yml)"),
+				.describe('Path to compose file (default: docker-compose.yml)'),
 			detach: z
 				.boolean()
 				.optional()
-				.describe("Run in background (default: true)"),
-			build: z.boolean().optional().describe("Build images before starting"),
+				.describe('Run in background (default: true)'),
+			build: z.boolean().optional().describe('Build images before starting'),
 			services: z
 				.array(z.string())
 				.optional()
-				.describe("Specific services to start"),
+				.describe('Specific services to start'),
 		},
 	},
-	async ({ file, detach = true, build, services }) => {
-		const args = ["compose"];
-		if (file) args.push("-f", file);
-		args.push("up");
-		if (detach) args.push("-d");
-		if (build) args.push("--build");
+	async ({file, detach = true, build, services}) => {
+		const args = ['compose'];
+		if (file) args.push('-f', file);
+		args.push('up');
+		if (detach) args.push('-d');
+		if (build) args.push('--build');
 		if (services) args.push(...services);
 
 		const output = await runDockerCommand(args);
 		return {
-			content: [{ type: "text", text: output || "Compose services started" }],
+			content: [{type: 'text', text: output || 'Compose services started'}],
 		};
 	},
 );
 
 // Docker Compose down
 server.registerTool(
-	"compose_down",
+	'compose_down',
 	{
 		inputSchema: {
 			file: z
 				.string()
 				.optional()
-				.describe("Path to compose file (default: docker-compose.yml)"),
-			volumes: z.boolean().optional().describe("Remove named volumes"),
+				.describe('Path to compose file (default: docker-compose.yml)'),
+			volumes: z.boolean().optional().describe('Remove named volumes'),
 			removeOrphans: z
 				.boolean()
 				.optional()
 				.describe(
-					"Remove containers for services not defined in the Compose file",
+					'Remove containers for services not defined in the Compose file',
 				),
 		},
 	},
-	async ({ file, volumes, removeOrphans }) => {
-		const args = ["compose"];
-		if (file) args.push("-f", file);
-		args.push("down");
-		if (volumes) args.push("-v");
-		if (removeOrphans) args.push("--remove-orphans");
+	async ({file, volumes, removeOrphans}) => {
+		const args = ['compose'];
+		if (file) args.push('-f', file);
+		args.push('down');
+		if (volumes) args.push('-v');
+		if (removeOrphans) args.push('--remove-orphans');
 
 		const output = await runDockerCommand(args);
 		return {
-			content: [{ type: "text", text: output || "Compose services stopped" }],
+			content: [{type: 'text', text: output || 'Compose services stopped'}],
 		};
 	},
 );
 
 // Docker Compose ps
 server.registerTool(
-	"compose_ps",
+	'compose_ps',
 	{
 		inputSchema: {
 			file: z
 				.string()
 				.optional()
-				.describe("Path to compose file (default: docker-compose.yml)"),
-			all: z.boolean().optional().describe("Show all stopped containers"),
+				.describe('Path to compose file (default: docker-compose.yml)'),
+			all: z.boolean().optional().describe('Show all stopped containers'),
 		},
 	},
-	async ({ file, all }) => {
-		const args = ["compose"];
-		if (file) args.push("-f", file);
-		args.push("ps");
-		if (all) args.push("-a");
-		args.push("--format", "json");
+	async ({file, all}) => {
+		const args = ['compose'];
+		if (file) args.push('-f', file);
+		args.push('ps');
+		if (all) args.push('-a');
+		args.push('--format', 'json');
 
 		const output = await runDockerCommand(args);
 		return {
-			content: [{ type: "text", text: output || "No compose services found" }],
+			content: [{type: 'text', text: output || 'No compose services found'}],
 		};
 	},
 );
 
 // Docker Compose logs
 server.registerTool(
-	"compose_logs",
+	'compose_logs',
 	{
 		inputSchema: {
 			file: z
 				.string()
 				.optional()
-				.describe("Path to compose file (default: docker-compose.yml)"),
+				.describe('Path to compose file (default: docker-compose.yml)'),
 			services: z
 				.array(z.string())
 				.optional()
-				.describe("Specific services to get logs from"),
+				.describe('Specific services to get logs from'),
 			tail: z
 				.number()
 				.optional()
-				.describe("Number of lines to show from the end of the logs"),
-			timestamps: z.boolean().optional().describe("Show timestamps"),
+				.describe('Number of lines to show from the end of the logs'),
+			timestamps: z.boolean().optional().describe('Show timestamps'),
 		},
 	},
-	async ({ file, services, tail, timestamps }) => {
-		const args = ["compose"];
-		if (file) args.push("-f", file);
-		args.push("logs");
-		if (tail) args.push("--tail", tail.toString());
-		if (timestamps) args.push("--timestamps");
+	async ({file, services, tail, timestamps}) => {
+		const args = ['compose'];
+		if (file) args.push('-f', file);
+		args.push('logs');
+		if (tail) args.push('--tail', tail.toString());
+		if (timestamps) args.push('--timestamps');
 		if (services) args.push(...services);
 
 		const output = await runDockerCommand(args);
 		return {
-			content: [{ type: "text", text: output || "No logs available" }],
+			content: [{type: 'text', text: output || 'No logs available'}],
 		};
 	},
 );

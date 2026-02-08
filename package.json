@@ -1,24 +1,33 @@
 {
-  "name": "docker-mcp-server",
-  "version": "1.0.0",
-  "description": "MCP server for Docker container management",
-  "module": "index.ts",
-  "type": "module",
-  "bin": {
-    "docker-mcp-server": "./index.ts"
-  },
-  "scripts": {
-    "start": "bun run index.ts",
-    "dev": "bun --watch index.ts"
-  },
-  "devDependencies": {
-    "@types/bun": "latest"
-  },
-  "peerDependencies": {
-    "typescript": "^5"
-  },
-  "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.26.0",
-    "zod": "^4.3.6"
-  }
+	"name": "docker-mcp-server",
+	"version": "1.0.0",
+	"description": "MCP server for Docker container management",
+	"module": "index.ts",
+	"type": "module",
+	"bin": {
+		"docker-mcp-server": "./index.ts"
+	},
+	"scripts": {
+		"start": "bun run index.ts",
+		"dev": "bun --watch index.ts",
+		"lint": "eslint .",
+		"format:check": "prettier . --check"
+	},
+	"devDependencies": {
+		"@eslint/js": "^10.0.1",
+		"@ianvs/prettier-plugin-sort-imports": "^4.7.1",
+		"@types/bun": "latest",
+		"eslint": "^10.0.0",
+		"eslint-config-prettier": "^10.1.8",
+		"eslint-plugin-unicorn": "^62.0.0",
+		"globals": "^17.3.0",
+		"prettier": "^3.8.1"
+	},
+	"peerDependencies": {
+		"typescript": "^5"
+	},
+	"dependencies": {
+		"@modelcontextprotocol/sdk": "^1.26.0",
+		"zod": "^4.3.6"
+	}
 }
