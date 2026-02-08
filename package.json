@@ -1,0 +1,24 @@
+{
+  "name": "docker-mcp-server",
+  "version": "1.0.0",
+  "description": "MCP server for Docker container management",
+  "module": "index.ts",
+  "type": "module",
+  "bin": {
+    "docker-mcp-server": "./index.ts"
+  },
+  "scripts": {
+    "start": "bun run index.ts",
+    "dev": "bun --watch index.ts"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.26.0",
+    "zod": "^4.3.6"
+  }
+}
